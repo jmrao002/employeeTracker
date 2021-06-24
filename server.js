@@ -11,6 +11,10 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+// global things
+let roles = [];
+
+// function for inquirer prompts
 const startPrompt = () => {
   inquirer
     .prompt([
@@ -20,8 +24,8 @@ const startPrompt = () => {
         name: "choice",
         choices: [
           "View all employees",
-          "View all roles",
-          "View all departments",
+          "View employees by role",
+          "View employees by department",
           "Add employee",
           "Add role",
           "Add department",
@@ -36,12 +40,12 @@ const startPrompt = () => {
           viewEmployees();
           break;
 
-        case "View all roles":
-          viewRoles();
+        case "View employees by role":
+          viewEmpRoles();
           break;
 
-        case "View all departments":
-          viewDepartments();
+        case "View employees by department":
+          viewEmpDepartments();
           break;
 
         case "Add employee":
@@ -79,7 +83,7 @@ const viewEmployees = () => {
 };
 
 // view roles
-const viewRoles = () => {
+const viewEmpRoles = () => {
   connection.query(
     "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id",
     (err, res) => {
@@ -91,7 +95,7 @@ const viewRoles = () => {
 };
 
 // view daprtments
-const viewDepartments = () => {
+const viewEmpDepartments = () => {
   connection.query(
     "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
     (err, res) => {
@@ -101,8 +105,37 @@ const viewDepartments = () => {
   );
 };
 
+// view all roles for add employee function
+const viewRoles = () => {
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      roles.push(res[i].title);
+    }
+  });
+};
+
 // add employee
-const addEmployee = () => {};
+const addEmployee = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "What is the employee's first name?",
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "What is the employee's last name?",
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "What is the employee's role?",
+      choices: viewRoles(),
+    },
+  ]);
+};
 
 // add employee role
 const addRole = () => {};
