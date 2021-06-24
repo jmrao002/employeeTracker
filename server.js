@@ -13,6 +13,7 @@ const connection = mysql.createConnection({
 
 // global things
 let roles = [];
+let managers = [];
 
 // function for inquirer prompts
 const startPrompt = () => {
@@ -113,28 +114,69 @@ const viewRoles = () => {
       roles.push(res[i].title);
     }
   });
+  return roles;
+};
+
+// view all managers for add employee function
+const viewManagers = () => {
+  connection.query(
+    'SELECT first_name, last_name FROM employee WHERE manager_id != "1"',
+    (err, res) => {
+      if (err) throw err;
+      for (let i = 0; i < res.length; i++) {
+        // do i need [i] here?
+        managers.push(res[i]);
+      }
+    }
+  );
+  return managers;
 };
 
 // add employee
 const addEmployee = () => {
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "firstName",
-      message: "What is the employee's first name?",
-    },
-    {
-      type: "input",
-      name: "lastName",
-      message: "What is the employee's last name?",
-    },
-    {
-      type: "list",
-      name: "role",
-      message: "What is the employee's role?",
-      choices: viewRoles(),
-    },
-  ]);
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "firstName",
+        message: "What is the employee's first name?",
+      },
+      {
+        type: "input",
+        name: "lastName",
+        message: "What is the employee's last name?",
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "What is the employee's role?",
+        choices: viewRoles(),
+      },
+      {
+        type: "rawlist",
+        name: "manager",
+        message: "What is the employee's manager's name?",
+        choices: viewManagers(),
+      },
+    ])
+    .then(function (val) {
+      let roleId = viewRoles().indexOf(val.role) + 1;
+      let managerId = viewManager().indexOf(val.choice) + 1;
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: val.firstName,
+          last_name: val.lastName,
+          manager_id: managerId,
+          role_id: roleId,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.table(val);
+          startPrompt();
+        }
+      );
+    });
 };
 
 // add employee role
