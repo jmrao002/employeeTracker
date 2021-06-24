@@ -20,8 +20,10 @@
   "homepage": "https://github.com/jmrao002/employeeTracker#readme",
   "dependencies": {
     "console.table": "^0.10.0",
+    "dotenv": "^10.0.0",
     "inquirer": "^8.1.1",
     "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
     "sequelize": "^6.6.2"
   }
 }
