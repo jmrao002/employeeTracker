@@ -34,19 +34,19 @@ const startPrompt = () => {
     .then(function (val) {
       switch (val.choice) {
         case "View All Employees":
-          viewAllEmployees();
+          viewEmployees();
           break;
 
         case "View All Employees By Role":
-          viewAllRoles();
+          viewRoles();
           break;
 
         case "View all Emplyees By Deparment":
-          viewAllDepartments();
+          viewDepartments();
           break;
 
         case "View All Employees By Manager":
-          viewAllManagers();
+          viewManagers();
           break;
 
         case "Add Employee":
@@ -72,9 +72,36 @@ const startPrompt = () => {
     });
 };
 
-// view all employees
-const viewAllEmployees = () => {
-  connection.query("");
+// view employees
+const viewEmployees = () => {
+  connection.query(
+    "SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name AS Department, role.salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department on role.department_id = department.id",
+    (err, res) => {
+      if (err) throw err;
+      startPrompt();
+    }
+  );
+};
+
+// view roles
+const viewRoles = () => {
+  connection.query(
+    "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id",
+    (err, res) => {
+      if (err) throw err;
+      startPrompt();
+    }
+  );
+};
+
+// view daprtments
+const viewDepartments = () => {
+  connection.query(
+    "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id", (err, res) => {
+      if (err) throw err;
+      startPrompt();
+    }
+  );
 };
 
 // connection ID
