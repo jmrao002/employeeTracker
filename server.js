@@ -41,7 +41,7 @@ const startPrompt = () => {
           viewRoles();
           break;
 
-        case "View all Emplyees By Deparment":
+        case "View all Employees By Deparment":
           viewDepartments();
           break;
 
@@ -78,6 +78,7 @@ const viewEmployees = () => {
     "SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name AS Department, role.salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department on role.department_id = department.id",
     (err, res) => {
       if (err) throw err;
+      console.table(res);
       startPrompt();
     }
   );
@@ -89,6 +90,7 @@ const viewRoles = () => {
     "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id",
     (err, res) => {
       if (err) throw err;
+      console.table(res);
       startPrompt();
     }
   );
@@ -97,12 +99,28 @@ const viewRoles = () => {
 // view daprtments
 const viewDepartments = () => {
   connection.query(
-    "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id", (err, res) => {
+    "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
+    (err, res) => {
       if (err) throw err;
       startPrompt();
     }
   );
 };
+
+// add employee
+const addEmployee = () => {};
+
+// remove employee
+const removeEmployee = () => {};
+
+// update employee
+const updateEmployee = () => {};
+
+// update role
+const updateRole = () => {};
+
+// update department
+const updateDepartment = () => {};
 
 // connection ID
 connection.connect(function (err) {
