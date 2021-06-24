@@ -19,55 +19,49 @@ const startPrompt = () => {
         message: "What would you like to do?",
         name: "choice",
         choices: [
-          "View All Employees",
-          "View All Employees By Role",
-          "View all Emplyees By Deparment",
-          "View all Emplyees By Manager",
-          "Add Employee",
-          "Remove Employee",
-          "Update Employee Role",
-          "Update Employee Department",
-          "Update Employee Manager",
+          "View all employees",
+          "View all roles",
+          "View all departments",
+          "Add employee",
+          "Add role",
+          "Add department",
+          "Update employee role",
+          "Quit",
         ],
       },
     ])
     .then(function (val) {
       switch (val.choice) {
-        case "View All Employees":
+        case "View all employees":
           viewEmployees();
           break;
 
-        case "View All Employees By Role":
+        case "View all roles":
           viewRoles();
           break;
 
-        case "View all Employees By Deparment":
+        case "View all departments":
           viewDepartments();
           break;
 
-        case "View All Employees By Manager":
-          viewManagers();
-          break;
-
-        case "Add Employee":
+        case "Add employee":
           addEmployee();
           break;
 
-        case "Remove Employee":
-          removeEmployee();
+        case "Add role":
+          addRole();
           break;
 
-        case "Update Employee Role":
+        case "Add department":
+          addDepartment();
+          break;
+
+        case "Update employee role":
           updateRole();
           break;
 
-        case "Update Employee Department":
-          updateDepartment();
-          break;
-
-        case "Update Employee Manager":
-          updateManager();
-          break;
+        case "Quit":
+          quit();
       }
     });
 };
@@ -110,17 +104,19 @@ const viewDepartments = () => {
 // add employee
 const addEmployee = () => {};
 
-// remove employee
-const removeEmployee = () => {};
+// add employee role
+const addRole = () => {};
 
-// update employee
-const updateEmployee = () => {};
+// add employee department
+const addDepartment = () => {};
 
-// update role
+// update employee role
 const updateRole = () => {};
 
-// update department
-const updateDepartment = () => {};
+// quit
+const quit = () => {
+  process.exit();
+};
 
 // connection ID
 connection.connect(function (err) {
