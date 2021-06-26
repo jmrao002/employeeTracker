@@ -267,22 +267,43 @@ const addDepartment = () => {
 
 // update employee role
 const updateRole = () => {
-  inquirer.prompt([
-    {
-      type: "list",
-      name: "empUpdate",
-      message: "Select the employee you would like to update.",
-      choices: viewEmployeesFL(),
-    },
-    {
-      type: "list",
-      name: "roleUpdate",
-      message: "Select the new employee's role.",
-      choices: viewRoles(),
-    },
-  ]).then((answer) => {
-    
-  });
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "empUpdate",
+        message: "Select the employee you would like to update.",
+        choices: viewEmployeesFL(),
+      },
+      {
+        type: "list",
+        name: "roleUpdate",
+        message: "Select the new employee's role.",
+        choices: viewRoles(),
+      },
+    ])
+    .then((answer) => {
+      res.forEach((value) => {
+        if (answer.roleUpdate === value.title) {
+          newRoleId = value.id;
+        }
+      });
+      connection.query(
+        "UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",
+        [
+          newRoleId,
+          chosenName[0],
+          chosenName[1],
+          (err, res) => {
+            if (err) throw err;
+            console.log(
+              `${answer.empUpdate}'s role has been updated to ${answer.roleUpdate}!`
+            );
+            startPrompt();
+          },
+        ]
+      );
+    });
 };
 
 // connection ID
