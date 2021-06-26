@@ -15,6 +15,7 @@ const connection = mysql.createConnection({
 let roles = [];
 let managers = [];
 let departments = [];
+let employeesFL = [];
 
 // function for inquirer prompts
 const startPrompt = () => {
@@ -103,7 +104,7 @@ const viewEmpDepartments = () => {
   );
 };
 
-// view all roles for add employee function
+// view all roles for addEmployee and updateRole functions
 const viewRoles = () => {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
@@ -115,7 +116,7 @@ const viewRoles = () => {
   return roles;
 };
 
-// view all managers for add employee function
+// view all managers for addEmployee function
 const viewManagers = () => {
   connection.query(
     'SELECT first_name, last_name FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
@@ -129,6 +130,7 @@ const viewManagers = () => {
   return managers;
 };
 
+// view all departments for addRole function
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
@@ -137,7 +139,22 @@ const viewDepartments = () => {
       roles.push(res[i].department_name);
     }
   });
-  return roles;
+  return departments;
+};
+
+// view all employees first and last names for updateRole function
+const viewEmployeesFL = () => {
+  connection.query(
+    "SELECT employee.first_name, employee.last_name FROM employee",
+    (res, err) => {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        flName = `${choice.first_name} ${choice.last_name}`;
+        employeesFL.push(flName);
+      }
+    }
+  );
+  return employeesFL;
 };
 
 // add employee
@@ -249,7 +266,24 @@ const addDepartment = () => {
 };
 
 // update employee role
-const updateRole = () => {};
+const updateRole = () => {
+  inquirer.prompt([
+    {
+      type: "list",
+      name: "empUpdate",
+      message: "Select the employee you would like to update.",
+      choices: viewEmployeesFL(),
+    },
+    {
+      type: "list",
+      name: "roleUpdate",
+      message: "Select the new employee's role.",
+      choices: viewRoles(),
+    },
+  ]).then((answer) => {
+    
+  });
+};
 
 // connection ID
 connection.connect(function (err) {
