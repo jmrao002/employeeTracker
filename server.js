@@ -11,9 +11,10 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
-// global things
+// arrays for use
 let roles = [];
 let managers = [];
+let departments = [];
 
 // function for inquirer prompts
 const startPrompt = () => {
@@ -36,22 +37,33 @@ const startPrompt = () => {
       },
     ])
     .then((answer) => {
-      if (answer.prompts === "View all employees") {
-        viewEmployees();
-      } else if (answer.prompts === "View employees by role") {
-        viewEmpRoles();
-      } else if (answer.prompts === "View employees by department") {
-        viewEmpDepartments();
-      } else if (answer.prompts === "Add employee") {
-        addEmployee();
-      } else if (answer.prompts === "Add role") {
-        addRole();
-      } else if (answer.prompts === "Add department") {
-        addDepartment();
-      } else if (answer.prompts === "Update employee role") {
-        updateRole();
-      } else if (answer.prompts === "Quit") {
-        quit();
+      switch (answer.prompts) {
+        case "View all employees":
+          viewEmployees();
+          break;
+        case "View employees by role":
+          viewEmpRoles();
+          break;
+        case "View employees by department":
+          viewEmpDepartments();
+          break;
+        case "Add employee":
+          addEmployee();
+          break;
+        case "Add role":
+          addRole();
+          break;
+        case "Add department":
+          addDepartment();
+          break;
+        case "Update employee role":
+          updateRole();
+          break;
+        case "Quit":
+          connection.end();
+          break;
+        default:
+          break;
       }
     });
 };
@@ -106,16 +118,26 @@ const viewRoles = () => {
 // view all managers for add employee function
 const viewManagers = () => {
   connection.query(
-    'SELECT first_name, last_name FROM employee WHERE manager_id != "1"',
+    'SELECT first_name, last_name FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
     (err, res) => {
       if (err) throw err;
       for (let i = 0; i < res.length; i++) {
-        // do i need [i] here?
         managers.push(res[i]);
       }
     }
   );
   return managers;
+};
+
+const viewDepartments = () => {
+  connection.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    console.log(res);
+    for (var i = 0; i < res.length; i++) {
+      roles.push(res[i].department_name);
+    }
+  });
+  return roles;
 };
 
 // add employee
@@ -139,45 +161,95 @@ const addEmployee = () => {
         choices: viewRoles(),
       },
       {
-        type: "rawlist",
+        type: "list",
         name: "manager",
         message: "What is the employee's manager's name?",
         choices: viewManagers(),
       },
     ])
-    .then(function (val) {
-      let roleId = viewRoles().indexOf(val.role) + 1;
-      let managerId = viewManager().indexOf(val.choice) + 1;
+    .then((answer) => {
       connection.query(
-        "INSERT INTO employee SET ?",
+        'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES(?, ?, (SELECT id FROM roles WHERE title = ?), (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ", last_name) = > ) AS tmptable))',
+        [answer.firstName, answer.lastName, answer.role, answer.manager]
+      );
+      startPrompt();
+    });
+};
+
+// add employee role
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "roleTitle",
+        message: "What is the title of this role?",
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is this role's salary?",
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "Which department does this role fall into?",
+        choices: viewDepartments(),
+      },
+    ])
+    .then((answer) => {
+      // get department id to assign to the new role
+      res.forEach((value) => {
+        if (answer.department_name === value.name) {
+          deptID = value.id;
+        }
+      });
+      // add role to database
+      connection.query(
+        "INSERT INTO role SET ?",
         {
-          first_name: val.firstName,
-          last_name: val.lastName,
-          manager_id: managerId,
-          role_id: roleId,
+          title: answer.roleTitle,
+          salary: answer.salary,
+          department_id: deptID,
         },
         (err, res) => {
           if (err) throw err;
-          console.table(val);
+          console.log(`${answer.roleTitle} has been added as a new role!`);
           startPrompt();
         }
       );
     });
 };
 
-// add employee role
-const addRole = () => {};
-
 // add employee department
-const addDepartment = () => {};
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "departmentName",
+        message: "What is the name of this department?",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "INSERT INTO department SET ?",
+        {
+          department_name: answer.departmentName,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(
+            `${answer.departmentName} has been added as a new department!`
+          );
+          startPrompt();
+        }
+      );
+    });
+};
 
 // update employee role
 const updateRole = () => {};
-
-// quit
-const quit = () => {
-  process.exit();
-};
 
 // connection ID
 connection.connect(function (err) {
