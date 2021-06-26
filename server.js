@@ -72,7 +72,6 @@ const startPrompt = () => {
 
 // function to view employees
 const viewEmployees = () => {
-  console.log("1");
   connection.query(
     'SELECT employee.id, employee.first_name, employee.last_name, role.id, department.department_name AS "department", employee.manager_id FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id',
     (err, res) => {
@@ -101,6 +100,7 @@ const viewEmpDepartments = () => {
     "SELECT department.department_name AS Department, employee.first_name, employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
     (err, res) => {
       if (err) throw err;
+      console.table(res);
       startPrompt();
     }
   );
@@ -110,9 +110,8 @@ const viewEmpDepartments = () => {
 const viewRoles = () => {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
-    console.log(res);
     for (var i = 0; i < res.length; i++) {
-      roles.push(res[i].title);
+      roles.push(res[i].title + " (id = " + res[i].id + ")");
     }
   });
   return roles;
@@ -121,11 +120,18 @@ const viewRoles = () => {
 // function to view all managers for addEmployee function
 const viewManagers = () => {
   connection.query(
-    'SELECT first_name, last_name FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
+    'SELECT first_name, last_name, id FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
     (err, res) => {
       if (err) throw err;
       for (let i = 0; i < res.length; i++) {
-        managers.push(res[i]);
+        managers.push(
+          res[i].first_name +
+            " " +
+            res[i].last_name +
+            " (id = " +
+            res[i].id +
+            ")"
+        );
       }
     }
   );
@@ -136,7 +142,6 @@ const viewManagers = () => {
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
-    console.log(res);
     for (var i = 0; i < res.length; i++) {
       roles.push(res[i].department_name);
     }
@@ -188,8 +193,11 @@ const addEmployee = () => {
     ])
     .then((answer) => {
       connection.query(
-        'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES(?, ?, (SELECT id FROM roles WHERE title = ?), (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ", last_name) = > ) AS tmptable))',
+        "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES(?)",
         [answer.firstName, answer.lastName, answer.role, answer.manager]
+      );
+      console.log(
+        `${answer.firstName} ${answer.lastName} has been added as a new employee!`
       );
       startPrompt();
     });
