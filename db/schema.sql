@@ -3,28 +3,22 @@ CREATE DATABASE employee_trackerDB;
 
 USE employee_trackerDB;
 
--- Department table
 CREATE TABLE department (
-    id INTEGER NOT NULL AUTO_INCREMENT,
-    department_name VARCHAR(30),
-    PRIMARY KEY (id),
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    department_name VARCHAR(30) NOT NULL
 );
 
--- Role table
 CREATE TABLE role (
-    id INTEGER NOT NULL AUTO_INCREMENT,
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
-    salary DECIMAL(10, 0) NOT NULL,
-    department_id INT,
-    PRIMARY KEY (id),
-)
+    salary DECIMAL NOT NULL,
+    department_id INTEGER NOT NULL
+);
 
--- Employee table
 CREATE TABLE employee (
-    id INTEGER NOT NULL AUTO_INCREMENT,
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    role_id INT,
-    manager_id INT,
-    PRIMARY KEY (id),
-)
+    role_id INTEGER NOT NULL,
+    manager_id INTEGER
+);

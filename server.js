@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "",
+  password: "MyNewPass",
   database: "employee_trackerDB",
 });
 
@@ -35,38 +35,23 @@ const startPrompt = () => {
         ],
       },
     ])
-    .then(function (val) {
-      switch (val.choice) {
-        case "View all employees":
-          viewEmployees();
-          break;
-
-        case "View employees by role":
-          viewEmpRoles();
-          break;
-
-        case "View employees by department":
-          viewEmpDepartments();
-          break;
-
-        case "Add employee":
-          addEmployee();
-          break;
-
-        case "Add role":
-          addRole();
-          break;
-
-        case "Add department":
-          addDepartment();
-          break;
-
-        case "Update employee role":
-          updateRole();
-          break;
-
-        case "Quit":
-          quit();
+    .then((answer) => {
+      if (answer.prompts === "View all employees") {
+        viewEmployees();
+      } else if (answer.prompts === "View employees by role") {
+        viewEmpRoles();
+      } else if (answer.prompts === "View employees by department") {
+        viewEmpDepartments();
+      } else if (answer.prompts === "Add employee") {
+        addEmployee();
+      } else if (answer.prompts === "Add role") {
+        addRole();
+      } else if (answer.prompts === "Add department") {
+        addDepartment();
+      } else if (answer.prompts === "Update employee role") {
+        updateRole();
+      } else if (answer.prompts === "Quit") {
+        quit();
       }
     });
 };
@@ -74,11 +59,11 @@ const startPrompt = () => {
 // view employees
 const viewEmployees = () => {
   connection.query(
-    "SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name AS Department, role.salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department on role.department_id = department.id",
+    'SELECT employee.id, employee.first_name, employee.last_name, role.id, department.department_name AS "department", employee.manager_id FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id',
     (err, res) => {
       if (err) throw err;
       console.table(res);
-      startPrompt();
+      loadPrompts();
     }
   );
 };
@@ -86,7 +71,7 @@ const viewEmployees = () => {
 // view roles
 const viewEmpRoles = () => {
   connection.query(
-    "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id",
+    "SELECT role.title AS Title, employee.first_name, employee.last_name FROM employee JOIN role ON employee.role_id = role.id",
     (err, res) => {
       if (err) throw err;
       console.table(res);
@@ -95,10 +80,10 @@ const viewEmpRoles = () => {
   );
 };
 
-// view daprtments
+// view departments
 const viewEmpDepartments = () => {
   connection.query(
-    "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
+    "SELECT department.department_name AS Department, employee.first_name, employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
     (err, res) => {
       if (err) throw err;
       startPrompt();
@@ -110,6 +95,7 @@ const viewEmpDepartments = () => {
 const viewRoles = () => {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
+    console.log(res);
     for (var i = 0; i < res.length; i++) {
       roles.push(res[i].title);
     }

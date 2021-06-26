@@ -1,3 +1,5 @@
+USE employees;
+
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ('Michael', 'Scott', 1, 8);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
@@ -35,7 +37,7 @@ VALUES ('Quality Assurance');
 INSERT INTO role (title, salary, department_id)
 VALUEs ('Regional Manager', 65000, 1);
 INSERT INTO role (title, salary, department_id)
-VALUEs ('Salesman', 60000, 2;
+VALUEs ('Salesman', 60000, 2);
 INSERT INTO role (title, salary, department_id)
 VALUEs ('Accountant', 40000, 3);
 INSERT INTO role (title, salary, department_id)
