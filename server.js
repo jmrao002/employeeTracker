@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
-// arrays for use
+// arrays for use throughout
 let roles = [];
 let managers = [];
 let departments = [];
@@ -38,6 +38,7 @@ const startPrompt = () => {
       },
     ])
     .then((answer) => {
+      // go to appropriate function based on prompt selection
       switch (answer.prompts) {
         case "View all employees":
           viewEmployees();
@@ -69,7 +70,7 @@ const startPrompt = () => {
     });
 };
 
-// view employees
+// function to view employees
 const viewEmployees = () => {
   connection.query(
     'SELECT employee.id, employee.first_name, employee.last_name, role.id, department.department_name AS "department", employee.manager_id FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id',
@@ -81,7 +82,7 @@ const viewEmployees = () => {
   );
 };
 
-// view roles
+// function to view roles
 const viewEmpRoles = () => {
   connection.query(
     "SELECT role.title AS Title, employee.first_name, employee.last_name FROM employee JOIN role ON employee.role_id = role.id",
@@ -93,7 +94,7 @@ const viewEmpRoles = () => {
   );
 };
 
-// view departments
+// function to view departments
 const viewEmpDepartments = () => {
   connection.query(
     "SELECT department.department_name AS Department, employee.first_name, employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
@@ -104,7 +105,7 @@ const viewEmpDepartments = () => {
   );
 };
 
-// view all roles for addEmployee and updateRole functions
+// function to view all roles for addEmployee and updateRole functions
 const viewRoles = () => {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
@@ -116,7 +117,7 @@ const viewRoles = () => {
   return roles;
 };
 
-// view all managers for addEmployee function
+// function to view all managers for addEmployee function
 const viewManagers = () => {
   connection.query(
     'SELECT first_name, last_name FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
@@ -130,7 +131,7 @@ const viewManagers = () => {
   return managers;
 };
 
-// view all departments for addRole function
+// function to view all departments for addRole function
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
@@ -142,7 +143,7 @@ const viewDepartments = () => {
   return departments;
 };
 
-// view all employees first and last names for updateRole function
+// function to view all employees first and last names for updateRole function
 const viewEmployeesFL = () => {
   connection.query(
     "SELECT employee.first_name, employee.last_name FROM employee",
@@ -157,7 +158,7 @@ const viewEmployeesFL = () => {
   return employeesFL;
 };
 
-// add employee
+// function to add employee
 const addEmployee = () => {
   inquirer
     .prompt([
@@ -193,7 +194,7 @@ const addEmployee = () => {
     });
 };
 
-// add employee role
+// function to add employee role
 const addRole = () => {
   inquirer
     .prompt([
@@ -238,7 +239,7 @@ const addRole = () => {
     });
 };
 
-// add employee department
+// function to add employee department
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -265,7 +266,7 @@ const addDepartment = () => {
     });
 };
 
-// update employee role
+// function to update employee role
 const updateRole = () => {
   inquirer
     .prompt([
