@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
 let roles = [];
 let managers = [];
 let departments = [];
-let employeesFL = [];
+let employeesFirstLast = [];
 
 // function for inquirer prompts
 const startPrompt = () => {
@@ -39,7 +39,7 @@ const startPrompt = () => {
     ])
     .then((answer) => {
       // go to appropriate function based on prompt selection
-      switch (answer.prompts) {
+      switch (answer.choice) {
         case "View all employees":
           viewEmployees();
           break;
@@ -72,12 +72,13 @@ const startPrompt = () => {
 
 // function to view employees
 const viewEmployees = () => {
+  console.log("1");
   connection.query(
     'SELECT employee.id, employee.first_name, employee.last_name, role.id, department.department_name AS "department", employee.manager_id FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id',
     (err, res) => {
       if (err) throw err;
       console.table(res);
-      loadPrompts();
+      startPrompt();
     }
   );
 };
@@ -151,11 +152,11 @@ const viewEmployeesFL = () => {
       if (err) throw err;
       for (var i = 0; i < res.length; i++) {
         flName = `${choice.first_name} ${choice.last_name}`;
-        employeesFL.push(flName);
+        employeesFirstLast.push(flName);
       }
     }
   );
-  return employeesFL;
+  return employeesFirstLast;
 };
 
 // function to add employee
