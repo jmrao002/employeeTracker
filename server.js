@@ -21,9 +21,11 @@ const startPrompt = () => {
         name: "choice",
         choices: [
           "View all employees",
-          "View employees by role",
-          "View employees by department",
-          "Add employee",
+          "View all roles",
+          "View all employees by role",
+          "View all departments",
+          "View all employees by department",
+          "Add an employee",
           "Add role",
           "Add department",
           "Update employee role",
@@ -37,13 +39,19 @@ const startPrompt = () => {
         case "View all employees":
           viewAllEmployees();
           break;
-        case "View employees by role":
+        case "View all roles":
+          viewAllRoles();
+          break;
+        case "View all employees by role":
           viewEmpRoles();
           break;
-        case "View employees by department":
+        case "View all departments":
+          viewAllDepts();
+          break;
+        case "View all employees by department":
           viewEmpDepartments();
           break;
-        case "Add employee":
+        case "Add an employee":
           addEmployee();
           break;
         case "Add role":
