@@ -76,10 +76,10 @@ const viewAllEmployees = () => {
   );
 };
 
-// function to view roles
+// function to view roles by employee
 const viewEmpRoles = () => {
   connection.query(
-    "SELECT role.title AS Title, employee.first_name, employee.last_name FROM employee JOIN role ON employee.role_id = role.id",
+    "SELECT role.title, employee.first_name, employee.last_name FROM employee JOIN role ON employee.role_id = role.id",
     (err, res) => {
       if (err) throw err;
       console.table(res);
@@ -88,7 +88,15 @@ const viewEmpRoles = () => {
   );
 };
 
-// function to view departments
+// function to view all roles
+const viewAllRoles = () => {
+  connection.query("SELECT title FROM role", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+  });
+};
+
+// function to view departments by employee
 const viewEmpDepartments = () => {
   connection.query(
     "SELECT department.department_name AS department, employee.first_name, employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id ORDER BY employee.id",
@@ -98,6 +106,14 @@ const viewEmpDepartments = () => {
       startPrompt();
     }
   );
+};
+
+// function to view all departments
+const viewAllDepts = () => {
+  connection.query("SELECT department_name FROM department", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+  });
 };
 
 // function to add employee
@@ -209,7 +225,8 @@ const addRole = () => {
           (err, res) => {
             if (err) throw err;
             console.log(`${answer.roleTitle} has been added as a new role.`);
-            // add function to show all roles
+            // function to show all roles
+            viewAllRoles();
             // start over
             startPrompt();
           }
@@ -239,6 +256,9 @@ const addDepartment = () => {
           console.log(
             `${answer.departmentName} has been added as a new department!`
           );
+          // show department table with updated data
+          viewAllDepts();
+          // start over
           startPrompt();
         }
       );
