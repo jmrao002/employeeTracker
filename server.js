@@ -307,7 +307,7 @@ const updateRole = () => {
 };
 
 // connection ID
-connection.connect(function (err) {
+connection.connect((err) => {
   if (err) throw err;
   console.log("connected as Id" + connection.threadId);
   startPrompt();
