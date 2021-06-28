@@ -11,11 +11,6 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
-// arrays for use throughout
-let roles = [];
-let managers = [];
-let departments = [];
-
 // function for inquirer prompts
 const startPrompt = () => {
   inquirer
@@ -105,68 +100,71 @@ const viewEmpDepartments = () => {
   );
 };
 
-// function to view all roles for addEmployee and updateRole functions
-const viewRoles = () => {
-  connection.query("SELECT * FROM role", (err, res) => {
-    if (err) throw err;
-    for (var i = 0; i < res.length; i++) {
-      roles.push(res[i].title);
-    }
-  });
-  return roles;
-};
-
-// function to view all managers for addEmployee function
-const viewManagers = () => {
-  connection.query(
-    'SELECT first_name, last_name, id FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
-    (err, res) => {
-      if (err) throw err;
-      for (let i = 0; i < res.length; i++) {
-        managers.push(res[i].id);
-      }
-    }
-  );
-  return managers;
-};
-
 // function to add employee
 const addEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "firstName",
-        message: "What is the employee's first name?",
-      },
-      {
-        type: "input",
-        name: "lastName",
-        message: "What is the employee's last name?",
-      },
-      {
-        type: "list",
-        name: "role",
-        message: "What is the employee's role ID?",
-        choices: viewRoles(),
-      },
-      {
-        type: "list",
-        name: "manager",
-        message: "What is the employee's manager's ID?",
-        choices: viewManagers(),
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",
-        [answer.firstName, answer.lastName, answer.role, answer.manager]
-      );
-      console.log(
-        `${answer.firstName} ${answer.lastName} has been added as a new employee!`
-      );
-      startPrompt();
-    });
+  connection.query("SELECT * FROM role", (err, res) => {
+    connection.query(
+      'SELECT first_name, last_name, id FROM employee WHERE (manager_id != "1") OR (manager_id IS NULL)',
+      (err, res2) => {
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "firstName",
+              message: "What is the employee's first name?",
+            },
+            {
+              type: "input",
+              name: "lastName",
+              message: "What is the employee's last name?",
+            },
+            {
+              type: "list",
+              name: "role",
+              message: "What is the employee's role?",
+              // embedded function to view all roles
+              choices() {
+                let rolesArr = [];
+                res.forEach(({ id, title }) => {
+                  rolesArr.push({ name: title, value: id });
+                });
+                return rolesArr;
+              },
+            },
+            {
+              type: "list",
+              name: "manager",
+              message: "What is the employee's manager's?",
+              // embedded function to view all managers
+              choices() {
+                let mgrArr = [];
+                res2.forEach(({ first_name, last_name, id }) => {
+                  mgrArr.push({
+                    name: `${first_name} ${last_name}`,
+                    value: id,
+                  });
+                });
+                return mgrArr;
+              },
+            },
+          ])
+          .then((answer) => {
+            // add new employee data into table
+            connection.query(
+              "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",
+              [answer.firstName, answer.lastName, answer.role, answer.manager]
+            );
+            console.log(
+              `${answer.firstName} ${answer.lastName} has been added as a new employee!`
+            );
+            // show most updated table
+            viewAllEmployees();
+            // restart
+            startPrompt();
+          });
+      }
+    );
+  });
 };
 
 // function to add employee role
@@ -182,12 +180,12 @@ const addRole = () => {
         },
         {
           type: "input",
-          name: "salary",
+          name: "roleSalary",
           message: "What is this role's salary?",
         },
         {
           type: "list",
-          name: "department",
+          name: "roleDepartment",
           message: "Which department does this role fall into?",
           // embedded function to view all departments
           choices() {
@@ -199,23 +197,20 @@ const addRole = () => {
           },
         },
       ])
+      // insert data into table
       .then((answer) => {
-        res.forEach((value) => {
-          if (answer.department_name === value.name) {
-            deptId = value.id;
-          }
-        });
         connection.query(
           "INSERT INTO role SET ?",
           {
             title: answer.roleTitle,
-            salary: answer.salary,
-            department_id: deptId,
+            salary: answer.roleSalary,
+            department_id: answer.roleDepartment,
           },
           (err, res) => {
             if (err) throw err;
             console.log(`${answer.roleTitle} has been added as a new role.`);
-            viewRoles();
+            // add function to show all roles
+            // start over
             startPrompt();
           }
         );
@@ -275,7 +270,7 @@ const updateRole = () => {
           {
             type: "list",
             name: "roleUpdate",
-            message: "Select the employee you would like to update.",
+            message: "Select the employee's new role.",
             // embedded function to show list of roles for selection
             choices() {
               let rolesArr = [];
@@ -302,7 +297,9 @@ const updateRole = () => {
               console.log("This employee's role has been updated.");
             }
           );
+          // show table with updated data
           viewEmpRoles();
+          // start over
           startPrompt();
         });
     });
