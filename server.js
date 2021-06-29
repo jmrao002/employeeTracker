@@ -98,10 +98,11 @@ const viewEmpRoles = () => {
 
 // function to view all roles
 const viewAllRoles = () => {
-  connection.query("SELECT title FROM role", (err, res) => {
+  connection.query("SELECT DISTINCT title FROM role", (err, res) => {
     if (err) throw err;
     console.table(res);
   });
+  startPrompt();
 };
 
 // function to view departments by employee
@@ -118,10 +119,14 @@ const viewEmpDepartments = () => {
 
 // function to view all departments
 const viewAllDepts = () => {
-  connection.query("SELECT department_name FROM department", (err, res) => {
-    if (err) throw err;
-    console.table(res);
-  });
+  connection.query(
+    "SELECT DISTINCT department_name FROM department",
+    (err, res) => {
+      if (err) throw err;
+      console.table(res);
+    }
+  );
+  startPrompt();
 };
 
 // function to add employee
@@ -181,10 +186,8 @@ const addEmployee = () => {
             console.log(
               `${answer.firstName} ${answer.lastName} has been added as a new employee!`
             );
-            // show most updated table
+            // show most updated table and restart prompt
             viewAllEmployees();
-            // restart
-            startPrompt();
           });
       }
     );
@@ -264,10 +267,8 @@ const addDepartment = () => {
           console.log(
             `${answer.departmentName} has been added as a new department!`
           );
-          // show department table with updated data
+          // show department table with updated data and restart prompt
           viewAllDepts();
-          // start over
-          startPrompt();
         }
       );
     });
